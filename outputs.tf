@@ -27,3 +27,13 @@ output "peering_ids" {
   description = "Map of peer VPC ID => peering connection ID"
   value       = { for k, p in ucloud_vpc_peering_connection.this : k => p.id }
 }
+
+output "vip_ids" {
+  description = "Map of VIP logical name => VIP ID"
+  value       = { for k, v in ucloud_vip.this : k => v.id }
+}
+
+output "vip_ips" {
+  description = "Map of VIP logical name => VIP IP address"
+  value       = { for k, v in ucloud_vip.this : k => v.ip_address }
+}

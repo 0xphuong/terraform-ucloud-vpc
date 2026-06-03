@@ -7,6 +7,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-04-29
+
+### Added
+- `vips` variable — map of VIPs bound to subnets in this VPC
+- `ucloud_vip` resource: creates VIP per entry, bound via `subnet_key` reference
+- Outputs: `vip_ids` (map of name => ID), `vip_ips` (map of name => IP address)
+- Per-VIP: optional `name` (fallback to key), `tag` (fallback to `vpc_tag`), `remark`
+
+### Changed
+- Provider version constraint: `>= 1.24.0` → `>= 1.39.5`
+
 ## [1.0.0] - 2026-04-29
 
 ### Added

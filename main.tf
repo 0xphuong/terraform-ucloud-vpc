@@ -22,3 +22,15 @@ resource "ucloud_vpc_peering_connection" "this" {
   vpc_id      = ucloud_vpc.this.id
   peer_vpc_id = each.value
 }
+
+resource "ucloud_vip" "this" {
+  for_each = var.vips
+
+  vpc_id    = ucloud_vpc.this.id
+  subnet_id = ucloud_subnet.this[each.value.subnet_key].id
+  name      = each.value.name != null ? each.value.name : each.key
+  tag       = each.value.tag != null ? each.value.tag : var.vpc_tag
+
+  # Optional
+  remark = each.value.remark != null ? each.value.remark : null
+}

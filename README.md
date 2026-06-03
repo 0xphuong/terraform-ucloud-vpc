@@ -1,14 +1,15 @@
 # terraform-ucloud-vpc
 
-Terraform module to create a **VPC**, **Subnets**, and optional **VPC Peering Connections** on [UCloud](https://www.ucloud.cn).
+Terraform module to create a **VPC**, **Subnets**, optional **VPC Peering Connections**, and optional **VIPs** on [UCloud](https://www.ucloud.cn).
 
 ## Features
 
 - Creates a UCloud VPC with one or more CIDR blocks
 - Creates multiple subnets via a map input
 - Optional VPC peering connections to other VPCs
+- Optional VIPs (Virtual IPs) bound to specific subnets
 - Input validation for CIDR blocks and name length
-- Structured outputs: VPC ID, subnet IDs, subnet CIDRs, peering IDs
+- Structured outputs: VPC ID, subnet IDs, subnet CIDRs, peering IDs, VIP IDs, VIP IPs
 
 ## Usage
 
@@ -61,6 +62,17 @@ module "vpc_primary" {
   }
 
   vpc_peering_ids = [module.vpc_secondary.vpc_id]
+
+  vips = {
+    lb-vip = {
+      subnet_key = "public_subnet"
+      name       = "prod-lb-vip"
+      remark     = "VIP for load balancer"
+    }
+    db-vip = {
+      subnet_key = "database_subnet"
+    }
+  }
 }
 
 module "vpc_secondary" {
@@ -83,13 +95,13 @@ module "vpc_secondary" {
 | Name | Version |
 |------|---------|
 | terraform | >= 1.3.0 |
-| ucloud | >= 1.24.0 |
+| ucloud | >= 1.39.5 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| ucloud | >= 1.24.0 |
+| ucloud | >= 1.39.5 |
 
 ## Resources
 
@@ -98,6 +110,7 @@ module "vpc_secondary" {
 | ucloud_vpc.this | resource |
 | ucloud_subnet.this | resource |
 | ucloud_vpc_peering_connection.this | resource |
+| ucloud_vip.this | resource |
 
 ## Inputs
 
@@ -108,6 +121,7 @@ module "vpc_secondary" {
 | subnets | Map of subnets to create | `map(object)` | `{}` | no |
 | vpc\_tag | Tag for the VPC and subnets | `string` | `"Default"` | no |
 | vpc\_peering\_ids | List of peer VPC IDs to create peering connections with | `list(string)` | `[]` | no |
+| vips | Map of VIPs to create, each bound to a subnet in this VPC | `map(object)` | `{}` | no |
 
 ### `subnets` map value
 
@@ -117,6 +131,15 @@ module "vpc_secondary" {
 | `name` | `string` | key name | no | Subnet display name |
 | `tag` | `string` | `vpc_tag` | no | Override tag for this subnet |
 | `remark` | `string` | `null` | no | Subnet remarks |
+
+### `vips` map value
+
+| Field | Type | Default | Required | Description |
+|-------|------|---------|----------|-------------|
+| `subnet_key` | `string` | — | **yes** | Key of the subnet (from `subnets` map) to bind this VIP to |
+| `name` | `string` | key name | no | VIP display name |
+| `tag` | `string` | `vpc_tag` | no | Override tag for this VIP |
+| `remark` | `string` | `null` | no | VIP remarks |
 
 ## Outputs
 
@@ -128,12 +151,14 @@ module "vpc_secondary" {
 | subnet\_ids | Map of subnet logical name => subnet ID |
 | subnet\_cidrs | Map of subnet logical name => subnet CIDR |
 | peering\_ids | Map of peer VPC ID => peering connection ID |
+| vip\_ids | Map of VIP logical name => VIP ID |
+| vip\_ips | Map of VIP logical name => VIP IP address |
 <!-- END_TF_DOCS -->
 
 ## Examples
 
 - [Basic](./examples/basic) — VPC with 2 subnets
-- [Complete](./examples/complete) — 2 VPCs with subnets and peering
+- [Complete](./examples/complete) — 2 VPCs with subnets, peering, and VIPs
 
 ## Changelog
 

@@ -49,3 +49,19 @@ variable "vpc_peering_ids" {
   type        = list(string)
   default     = []
 }
+
+variable "vips" {
+  description = "Map of VIPs to create. Key is a logical name. Each VIP is bound to a subnet in this VPC."
+  type = map(object({
+    subnet_key = string
+    name       = optional(string)
+    tag        = optional(string)
+    remark     = optional(string)
+  }))
+  default = {}
+
+  validation {
+    condition     = alltrue([for k, v in var.vips : length(v.subnet_key) > 0])
+    error_message = "Each VIP must reference a subnet_key."
+  }
+}

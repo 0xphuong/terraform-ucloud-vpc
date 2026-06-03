@@ -27,6 +27,21 @@ module "vpc_primary" {
 
   # Peering to secondary VPC (e.g. shared services VPC)
   vpc_peering_ids = [module.vpc_secondary.vpc_id]
+
+  # VIPs — each VIP is bound to a subnet key defined above
+  vips = {
+    lb-vip = {
+      subnet_key = "public_subnet"
+      name       = "prod-lb-vip"
+      tag        = "production"
+      remark     = "VIP for load balancer"
+    }
+    db-vip = {
+      subnet_key = "database_subnet"
+      name       = "prod-db-vip"
+      tag        = "production"
+    }
+  }
 }
 
 # Secondary VPC (shared services)
@@ -48,4 +63,6 @@ module "vpc_secondary" {
 output "primary_vpc_id"      { value = module.vpc_primary.vpc_id }
 output "primary_subnet_ids"  { value = module.vpc_primary.subnet_ids }
 output "primary_peering_ids" { value = module.vpc_primary.peering_ids }
+output "primary_vip_ids"     { value = module.vpc_primary.vip_ids }
+output "primary_vip_ips"     { value = module.vpc_primary.vip_ips }
 output "secondary_vpc_id"    { value = module.vpc_secondary.vpc_id }
