@@ -64,4 +64,8 @@ variable "vips" {
     condition     = alltrue([for k, v in var.vips : length(v.subnet_key) > 0])
     error_message = "Each VIP must reference a subnet_key."
   }
+  validation {
+    condition     = alltrue([for k, v in var.vips : contains(keys(var.subnets), v.subnet_key)])
+    error_message = "Each VIP's subnet_key must match an existing key in var.subnets."
+  }
 }
